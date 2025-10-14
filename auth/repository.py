@@ -1,26 +1,14 @@
-from sqlalchemy.orm import Session
-from models import User, TokenBlackList
+from .security import verify_password, hash_password
+from .tokens import verify_token
 from typing import Optional
+from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from security import hash_password, verify_password
-from fastapi import Depends
-from auth_security import oauth2_scheme
-from auth_security import verify_token
-from datetime import timedelta
-from database import get_db
+from .models import User, TokenBlackList
 
 def get_user_by_username_or_email(login: str, db: Session):
     return(db.query(User).filter(or_(User.email == login,  User.username == login)).first())
 
-def authenticate_user(db: Session, login: str, password: str):
-    user = get_user_by_username_or_email(login, db)
 
-    if(user is None):
-        return False
-    if(verify_password(password, user.password_hash) == False):
-        return False
-    
-    return user
     
 def create_user(db: Session, username: str, password: str, email: Optional[str] = None):
 
